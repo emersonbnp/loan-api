@@ -1,4 +1,4 @@
-package com.example.kotlindemo
+package com.credit.grant.api
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

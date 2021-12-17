@@ -1,4 +1,4 @@
-package com.example.kotlindemo
+package com.credit.grant.api
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
