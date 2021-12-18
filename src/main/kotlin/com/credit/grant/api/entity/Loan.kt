@@ -16,13 +16,13 @@ class Loan (
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Client::class)
     val client: Client,
 
-    val status: LoanStatus,
+    val status: LoanStatus = LoanStatus.INACTIVE,
 
     @get: NotBlank
-    val description: String,
+    val description: String = "",
 
     @get: Positive
-    val value: Double,
+    val value: Double = 0.0,
 
     var deleted: Boolean = false
 ) {
