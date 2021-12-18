@@ -6,11 +6,10 @@ import org.hibernate.annotations.Where
 import javax.persistence.*
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Positive
-import javax.validation.constraints.PositiveOrZero
 
 @Entity
 @Where(clause = "DELETED = false")
-data class Loan (
+class Loan (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
 
@@ -25,7 +24,7 @@ data class Loan (
     @get: Positive
     val value: Double,
 
-    val deleted: Boolean = false
+    var deleted: Boolean = false
 ) {
     fun toLoanResponse() = LoanResponse(id = id!!, status = status, description = description, value = value)
 }

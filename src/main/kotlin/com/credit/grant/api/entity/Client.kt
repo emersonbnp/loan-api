@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Positive
 
 @Entity
-data class Client (
+class Client (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
 
@@ -14,11 +14,9 @@ data class Client (
     val name: String,
 
     @get: Positive
-    val score: Int,
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "client")
-    val loans: List<Loan>
+    var score: Int
 ) {
-    constructor(name: String, score: Int): this(id = null, name = name, score = score, loans = emptyList())
+    constructor(name: String, score: Int): this(id = null, name = name, score = score)
+    constructor(id: Long): this(id = id, name = "", score = 0)
     fun toClientResponse() = ClientResponse(id = id!!, name = name, score = score)
 }

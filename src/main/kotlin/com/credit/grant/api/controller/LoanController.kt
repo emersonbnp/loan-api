@@ -3,6 +3,7 @@ package com.credit.grant.api.controller
 import com.credit.grant.api.client.fraud.verification.FraudVerificationClient
 import com.credit.grant.api.client.risk.analysis.RiskAnalysisClient
 import com.credit.grant.api.client.risk.analysis.RiskEnum
+import com.credit.grant.api.entity.Client
 import com.credit.grant.api.request.LoanRequest
 import com.credit.grant.api.entity.Loan
 import com.credit.grant.api.repository.ClientRepository
@@ -10,7 +11,6 @@ import com.credit.grant.api.repository.LoanRepository
 import com.credit.grant.api.response.LoanResponse
 import javassist.NotFoundException
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/loans")
+@RequestMapping("/clients")
 class LoanController(private val loanRepository: LoanRepository,
                      private val clientRepository: ClientRepository,
                      private val riskAnalysisClient: RiskAnalysisClient,
@@ -28,7 +28,7 @@ class LoanController(private val loanRepository: LoanRepository,
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @PostMapping("/{clientId}")
+    @PostMapping("/{clientId}/loans")
     fun createNewLoan(@Valid @PathVariable(value = "clientId") clientId: Long,
                               @Valid @RequestBody loanRequest: LoanRequest
     ): ResponseEntity<LoanResponse> {
@@ -70,20 +70,27 @@ class LoanController(private val loanRepository: LoanRepository,
     }
 
 
-    @GetMapping("/{id}")
-    fun getClientById(@PathVariable(value = "id") id: Long): ResponseEntity<LoanResponse> {
+    @GetMapping("/loans/{id}")
+    fun getByLoanId(@PathVariable(value = "id") id: Long): ResponseEntity<LoanResponse> {
         return loanRepository.findById(id).map { loan ->
             ResponseEntity.ok(loan.toLoanResponse())
-        }.orElse(ResponseEntity.notFound().build())
+        }.orElse(notFound().build())
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/{clientId}/loans")
+    fun getClientById(@PathVariable(value = "clientId") clientId: Long): ResponseEntity<List<LoanResponse>> {
+        val loans = loanRepository.findByClient(Client(id = clientId)).orElseThrow{ throw NotFoundException("") }
+        return ResponseEntity.ok(loans.map { loan -> loan.toLoanResponse() })
+    }
+
+    @DeleteMapping("/loans/{id}")
     fun deleteClientById(@PathVariable(value = "id") id: Long): ResponseEntity<Void> {
 
         return loanRepository.findById(id).map { loan  ->
-            loanRepository.save(loan.copy(deleted = true))
+            loan.deleted = true
+            loanRepository.save(loan)
             ResponseEntity<Void>(HttpStatus.OK)
-        }.orElse(ResponseEntity.notFound().build())
+        }.orElse(notFound().build())
 
     }
 }

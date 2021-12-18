@@ -5,7 +5,6 @@ import com.credit.grant.api.repository.ClientRepository
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import org.springframework.web.context.annotation.RequestScope
 
 @Component
 class ScoreUpdatedConsumer(val clientRepository: ClientRepository) {
@@ -19,7 +18,8 @@ class ScoreUpdatedConsumer(val clientRepository: ClientRepository) {
 
         clientRepository.findById(scoreUpdatedEvent.clientId)
             .ifPresentOrElse({
-                    clientRepository.save(it.copy(score = scoreUpdatedEvent.score))
+                    it.score = scoreUpdatedEvent.score
+                    clientRepository.save(it)
                 }, {
                     logger.info("Client ${scoreUpdatedEvent.clientId} does not exist")
                 })
